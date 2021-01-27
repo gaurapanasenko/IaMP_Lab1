@@ -1,0 +1,239 @@
+ <!doctype html>
+<html lang="uk">
+<head>
+	<title>Лабораторна робота №1, Панасенко Єгор</title>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="tiff.min.js"></script>
+	<script>
+		function make_request(url, callback, type='text') {
+			let xhttp = new XMLHttpRequest();
+			xhttp.responseType = type;
+			xhttp.onreadystatechange = callback;
+			xhttp.open("GET", url, true);
+			xhttp.send();
+		}
+		function includeHTML(element) {
+			let url;
+			for (let item of element.querySelectorAll("*[w3-include-html]")) {
+				url = item.getAttribute("w3-include-html");
+				if (url) {
+					make_request(url, function() {
+						if (this.readyState == 4) {
+							if (this.status == 200) {
+								item.innerHTML = this.responseText;
+							}
+							if (this.status == 404) {
+								item.innerHTML = "Page not found.";
+							}
+							_onReadyCallback(item);
+						}
+					});
+					item.removeAttribute("w3-include-html");
+				}
+			}
+		}
+		function _onReadyCallback(element) {
+			includeHTML(element);
+			_tiffy_html(element);
+		}
+		function _base64ToArrayBuffer(base64) {
+			let binary_string = window.atob(base64);
+			let len = binary_string.length;
+			let bytes = new Uint8Array(len);
+			for (let i = 0; i < len; i++) {
+				bytes[i] = binary_string.charCodeAt(i);
+			}
+			return bytes.buffer;
+		}
+		function _add_tiff_to_node(node, buffer) {
+			let t = new Tiff({buffer: buffer});
+			let c = t.toCanvas();
+			c.classList.add("image");
+			node.appendChild(c);
+		}
+		function _tiffy_html(element) {
+			let d, u;
+			for (let node of element.querySelectorAll(".tiffy")) {
+				d = node.dataset["data"];
+				u = node.dataset["url"];
+				if (d)
+					_add_tiff_to_node(node, _base64ToArrayBuffer(d));
+				else if (u)
+					make_request(u, function() {
+						if (this.readyState == 4 && this.status == 200)
+							_add_tiff_to_node(node, this.response);
+					}, "arraybuffer");
+				node.classList.remove("tiffy");
+				node.removeAttribute("data-data");
+			}
+		}
+		document.addEventListener('DOMContentLoaded', function(){
+			_onReadyCallback(document);
+		});
+	</script>
+	<style>
+		body {
+			max-width: 21cm;
+			margin: auto;
+			font-size: 14pt;
+			text-align: justify;
+			-webkit-hyphens: auto;
+			-ms-hyphens: auto;
+			hyphens: auto;
+		}
+		.centered {
+			text-align: center;
+		}
+		.author-table, .author-table td {
+			margin-left: auto;
+			width: auto;
+			vertical-align: top;
+		}
+		h1 {
+			text-align: center;
+		}
+		.image {
+			max-width: 100%;
+		}
+		p {
+			text-indent: 1cm;
+		}
+		@page {
+			size: 7in 9.25in;
+			margin: 27mm 16mm 27mm 16mm;
+		}
+		@media print {
+			body {
+				width: 21cm;
+				height: 29.7cm;
+				margin: 30mm 45mm 30mm 45mm; 
+				/* change the margins as you want them to be. */
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="centered">
+		Міністерство освіти і науки України<br>
+		Дніпровський національний університет імені Олеся Гончара<br>
+		Факультет прикладної математики<br>
+		Кафедра комп'ютерних технологій<br>
+	</div>
+	<h1>Лабораторна робота №1</h1>
+	<div class="centered">Тема: "Порівняльний аналіз растрових форматів. Робота з bmp-файлами."</div>
+	<table class="author-table">
+		<tr>
+			<td>Виконавець:<td>
+			<td>
+				студент групи ПА-17-2<br>
+				Панасенко Єгор<br>
+				Сергійович
+			</td>
+		</tr>
+	</table>
+	<h2>Постановка завдання</h2>
+	<h3>Завдання І.</h3>
+	<p>Вибрати одну із фотографій, зроблених власноруч. Згенерувати три зображення:</p>
+	<ol>
+    	<li>бінарне (двоколірне);
+    	<li>у відтінках сірого (256 кольорів);
+    	<li>повноколірне TrueColor (глибина кольору – 24 біт/пікс).
+	</ol>
+	<p>Конвертувати кожне із зображень у формати .bmp, .gif, .png, .tiff, .jpeg. Порівняти отримані зображення за якістю та розміром. Для оцінки якості проставити бали від 1 до 5: 5 – найкраще, 4 – трохи гірше, … 1 – найгірше. Результати представити у вигляді таблиці:</p>
+	<table border=1 width=100%>
+		<tr>
+			<th rowspan=2>Формат</th>
+			<th colspan=2>Зображення 1</th>
+			<th colspan=2>Зображення 2</th>
+			<th colspan=2>Зображення 3</th>
+		</tr>
+		<tr>
+			<th>розмір</th><th>якість</th><th>розмір</th>
+			<th>якість</th><th>розмір</th><th>якість</th>
+		</tr>
+		<tr><th>.bmp</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		<tr><th>.gif</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		<tr><th>.png</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		<tr><th>.tiff</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		<tr><th>.jpeg</th><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	</table>
+	<p>Для кожного з розглянутих форматів знати:</p>
+	<ul>
+    	<li>історія виникнення;
+    	<li>призначення;
+    	<li>основні характеристики (розмір, глибина кольору, кількість кольорів, колірні моделі, вид та алгоритм стиснення, анімація, прозорість).
+	</ul>
+
+	<h3>Завдання ІІ.</h3>
+	<p>На мові С++ розробити програму для роботи з зображенням у форматі .bmp.</p>
+	<p>Програма повинна:</p>
+	<ul>
+		<li>завантажити вихідне зображення у форматі .bmp;
+		<li>прочитати інформацію із заголовка файлу та сформувати масив пікселів. Для кожного пікселя передбачити три параметри кольору (R,G,B);
+    	<li>вивести на екран основні характеристики зображення: кількість пікселів по горизонталі, кількість пікселів по вертикалі, глибина кольору, кількість кольорів у зображенні (інформацію взяти з заголовку файлу);
+    	<li>перетворити зображення згідно з варіантом (див. табл.). Результуюче зображення записати у інший файл. 
+	</ul>
+
+	<table border=1>
+		<tr><th>№ вар.</th><th>Завдання</th><th>Зразок</th></tr>
+		<tr><th>3</th><td>Перетворити зображення на синьо-біле заміною кольорів пікселів</td><td></td></tr>
+	</table>
+	
+	
+	<p>Оформити звіт (у форматі .docx), у якому розмістити таблицю з порівняльним аналізом форматів графічних файлів, зображення, на яких проводився аналіз, висновки за цим завданням, код програми завдання 2 (модуль з алгоритмами обробки зображення), набір зображень: вихідне та оброблене.</p>
+	<h2>Завдання І.</h2>
+	<p>У ході роботи було розглянуто такі формати з параметрами:</p>
+	<dl>
+		<dt>.bmp</dt>
+		<dd>Формат bmp;</dd>
+		<dt>.gif</dt>
+		<dd>Формат gif;</dd>
+		<dt>.png</dt>
+		<dd>Формат png;</dd>
+		<dt>_indexed.png</dt>
+		<dd>Формат png з індексованими кольорами, загалом обмеження 255 кольорів, але якщо зображення вже обмежене у відтінках, то викристовується це обмеження;</dd>
+		<dt>_none.tiff</dt>
+		<dd>Формат tiff;</dd>
+		<dt>_lzw.tiff</dt>
+		<dd>Формат tiff.</dd>
+		<dt>_25.jpg</dt>
+		<dd>Формат jpg з 25% якості;</dd>
+		<dt>_75.jpg</dt>
+		<dd>Формат jpg з 75% якості;</dd>
+		<dt>_85.jpg</dt>
+		<dd>Формат jpg з 85% якості;</dd>
+		<dt>.jpg</dt>
+		<dd>Формат jpg з 100% якості;</dd>
+	</dl>
+	<p>Також було розглянуто такі різновиди зображень:</p>
+	<dl>
+		<dt>photo_true</dt>
+		<dd>Повноколірне фото;</dd>
+		<dt>photo_true_64</dt>
+		<dd>Повноколірне фото з обмеженням у 64 відтінка;</dd>
+		<dt>photo_true_16</dt>
+		<dd>Повноколірне фото з обмеженням у 16 відтінків;</dd>
+		<dt>photo_gray</dt>
+		<dd>Фото у відтінках сірого;</dd>
+		<dt>photo_gray_64</dt>
+		<dd>Фото у 64 відтінках сірого;</dd>
+		<dt>photo_gray_16</dt>
+		<dd>Фото у 16 відтінках сірого;</dd>
+		<dt>photo_bin</dt>
+		<dd>Бінарне фото;</dd>
+		<dt>screen_true</dt>
+		<dd>Повноколірне зображення першої сторінки постановки задачі у 100 dpi;</dd>
+		<dt>screen_gray</dt>
+		<dd>Зображення першої сторінки постановки задачі у 100 dpi та відтінках сірого;</dd>
+		<dt>screen_gray_64</dt>
+		<dd>Зображення першої сторінки постановки задачі у 100 dpi та 64 відтінках сірого;</dd>
+		<dt>screen_gray_16</dt>
+		<dd>Зображення першої сторінки постановки задачі у 100 dpi та 16 відтінках сірого;</dd>
+		<dt>screen_bin</dt>
+		<dd>Бінарне зображення першої сторінки постановки задачі у 100 dpi.</dd>
+	</dl>
+	<div w3-include-html="tables.html"></div>
+	<h2>Додаток А. Отримані картинки.</h2>
+	<div w3-include-html="images.html"></div>
+</body>
+</html>

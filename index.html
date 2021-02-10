@@ -4,6 +4,7 @@
 	<title>Лабораторна робота №1, Панасенко Єгор</title>
 	<meta charset="UTF-8">
 	<script type="text/javascript" src="tiff.min.js"></script>
+	<script type="text/javascript" src="highlight.pack.js"></script>
 	<script>
 		function make_request(url, callback, type='text') {
 			let xhttp = new XMLHttpRequest();
@@ -35,6 +36,7 @@
 		function _onReadyCallback(element) {
 			includeHTML(element);
 			_tiffy_html(element);
+			document.getElementById("toc").innerHTML = _table_of_contents(_table_of_contents_gen());
 		}
 		function _base64ToArrayBuffer(base64) {
 			let binary_string = window.atob(base64);
@@ -67,10 +69,37 @@
 				node.removeAttribute("data-data");
 			}
 		}
+		function _table_of_contents_gen() {
+			let toc = [];
+			for (let node of document.querySelectorAll("h1, h2, h3")) {
+				if (node.tagName == "H1")
+					toc.push([node, []]);
+				if (node.tagName == "H2")
+					toc[toc.length-1][1].push([node, []]);
+				if (node.tagName == "H3") {
+					let i = toc[toc.length-1][1];
+					i[i.length-1][1].push([node, []]);
+				}
+			}
+			return toc;
+		}
+		function _table_of_contents(data) {
+			let html = "<ul>";
+			for (let node of data) {
+				html += `<li><a href='#${node[0].id}'>${node[0].innerText}</a></li>\n`;
+				if (node[1].length) {
+					html += _table_of_contents(node[1]);
+				}
+			}
+			html += "</ul>";
+			return html;
+		}
 		document.addEventListener('DOMContentLoaded', function(){
 			_onReadyCallback(document);
+			hljs.initHighlightingOnLoad();
 		});
 	</script>
+	<link rel="stylesheet" href="github.css">
 	<style>
 		body {
 			max-width: 21cm;
@@ -106,7 +135,7 @@
 			body {
 				width: 21cm;
 				height: 29.7cm;
-				margin: 30mm 45mm 30mm 45mm; 
+				margin: 30mm 45mm 30mm 45mm;
 				/* change the margins as you want them to be. */
 			}
 		}
@@ -119,7 +148,7 @@
 		Факультет прикладної математики<br>
 		Кафедра комп'ютерних технологій<br>
 	</div>
-	<h1>Лабораторна робота №1</h1>
+	<h1 id="Lab1">Лабораторна робота №1</h1>
 	<div class="centered">Тема: "Порівняльний аналіз растрових форматів. Робота з bmp-файлами."</div>
 	<table class="author-table">
 		<tr>
@@ -131,13 +160,16 @@
 			</td>
 		</tr>
 	</table>
-	<h2>Постановка завдання</h2>
-	<h3>Завдання І.</h3>
+	<p>Повна версія доступна за посиланням:<br><a href="https://gaurapanasenko.github.io/IaMP_Lab1/">https://gaurapanasenko.github.io/IaMP_Lab1/</a></p>
+	<h2>Зміст</h2>
+	<p id="toc"></p>
+	<h2 id="h2-task">Постановка завдання</h2>
+	<h3 id="h3-task-1">Завдання І.</h3>
 	<p>Вибрати одну із фотографій, зроблених власноруч. Згенерувати три зображення:</p>
 	<ol>
-    	<li>бінарне (двоколірне);
-    	<li>у відтінках сірого (256 кольорів);
-    	<li>повноколірне TrueColor (глибина кольору – 24 біт/пікс).
+		<li>бінарне (двоколірне);
+		<li>у відтінках сірого (256 кольорів);
+		<li>повноколірне TrueColor (глибина кольору – 24 біт/пікс).
 	</ol>
 	<p>Конвертувати кожне із зображень у формати .bmp, .gif, .png, .tiff, .jpeg. Порівняти отримані зображення за якістю та розміром. Для оцінки якості проставити бали від 1 до 5: 5 – найкраще, 4 – трохи гірше, … 1 – найгірше. Результати представити у вигляді таблиці:</p>
 	<table border=1 width=100%>
@@ -159,29 +191,29 @@
 	</table>
 	<p>Для кожного з розглянутих форматів знати:</p>
 	<ul>
-    	<li>історія виникнення;
-    	<li>призначення;
-    	<li>основні характеристики (розмір, глибина кольору, кількість кольорів, колірні моделі, вид та алгоритм стиснення, анімація, прозорість).
+		<li>історія виникнення;
+		<li>призначення;
+		<li>основні характеристики (розмір, глибина кольору, кількість кольорів, колірні моделі, вид та алгоритм стиснення, анімація, прозорість).
 	</ul>
 
-	<h3>Завдання ІІ.</h3>
+	<h3 id="h3-task-2">Завдання ІІ.</h3>
 	<p>На мові С++ розробити програму для роботи з зображенням у форматі .bmp.</p>
 	<p>Програма повинна:</p>
 	<ul>
 		<li>завантажити вихідне зображення у форматі .bmp;
 		<li>прочитати інформацію із заголовка файлу та сформувати масив пікселів. Для кожного пікселя передбачити три параметри кольору (R,G,B);
-    	<li>вивести на екран основні характеристики зображення: кількість пікселів по горизонталі, кількість пікселів по вертикалі, глибина кольору, кількість кольорів у зображенні (інформацію взяти з заголовку файлу);
-    	<li>перетворити зображення згідно з варіантом (див. табл.). Результуюче зображення записати у інший файл. 
+		<li>вивести на екран основні характеристики зображення: кількість пікселів по горизонталі, кількість пікселів по вертикалі, глибина кольору, кількість кольорів у зображенні (інформацію взяти з заголовку файлу);
+		<li>перетворити зображення згідно з варіантом (див. табл.). Результуюче зображення записати у інший файл.
 	</ul>
 
 	<table border=1>
 		<tr><th>№ вар.</th><th>Завдання</th><th>Зразок</th></tr>
 		<tr><th>3</th><td>Перетворити зображення на синьо-біле заміною кольорів пікселів</td><td></td></tr>
 	</table>
-	
-	
+
+
 	<p>Оформити звіт (у форматі .docx), у якому розмістити таблицю з порівняльним аналізом форматів графічних файлів, зображення, на яких проводився аналіз, висновки за цим завданням, код програми завдання 2 (модуль з алгоритмами обробки зображення), набір зображень: вихідне та оброблене.</p>
-	<h2>Завдання І.</h2>
+	<h2 id="h2-task1">Завдання І.</h2>
 	<p>У ході роботи було розглянуто такі формати з параметрами:</p>
 	<dl>
 		<dt>.bmp</dt>
@@ -233,7 +265,86 @@
 		<dd>Бінарне зображення першої сторінки постановки задачі у 100 dpi.</dd>
 	</dl>
 	<div w3-include-html="tables.html"></div>
-	<h2>Додаток А. Отримані картинки.</h2>
+	<h3>Висновки</h3>
+	<p>Як ми бачимо у таблицях, для повно-колірного фото із усіма кольорами найбільше підходить формат jpg, причому, якщо вибрати максимальну якість 100%, файл все одно має найменший розмір за всіх. Якщо зменшувати кількість відтінків то виграє формат png із індексованими кольорами.</p>
+
+	<p>У відтінках сірого png та jpg мають приблизно однакову ефективність. А от у бінарному зображенні виграє png.</p>
+
+	<p>Зовсім іншу ситуацію ми отримаємо якщо беремо за картинку деякий скріншот, особливо чорно-білий, як приклад було обрано постановку задачі до лабораторної роботи. По таблиці бачимо що найбільш ефективний спосіб зберігання таких картинок саме індексований png формат. Причому без погіршення якості можна використовувати обмеження у 16 відтінках сірого.</p>
+	<p>
+	<h2 id="h2-task2">Завдання ІI.</h2>
+	<img src="program/photo_true_out.bmp">
+<pre><code class="language-c">
+#include "stdio.h"
+#include "stdint.h"
+#include "stdlib.h"
+
+#define HEDAER_OFFSET 14
+
+typedef struct InfoHeader {
+	uint32_t size, width, height;
+	uint16_t planes, bits_per_pixel;
+	uint32_t compression, image_size, x_pixels_per_m, y_pixels_per_m,
+	colors_used, important_colors;
+} __attribute__((packed)) InfoHeader;
+
+int main(int argc, char *argv[]) {
+	if (argc != 3) {
+		fprintf(stderr, "Usage: %s filename.bmp output.bmp\n", argv[0]);
+		return -1;
+	}
+	FILE *f = fopen(argv[1], "rb");
+	FILE *of = fopen(argv[2], "wb");
+	if (f == NULL || of == NULL) {
+		fprintf(stderr, "Failed to open files.\n");
+		return -2;
+	}
+	fseek(f, 0L, SEEK_END);
+	size_t size = (size_t)ftell(f);
+	fseek(f, 0L, SEEK_SET);
+	char *buffer = (char*)calloc(1, size + 1);
+	if (buffer == NULL) {
+		fprintf(stderr, "Failed to alloc buffer.\n");
+		return -2;
+	}
+	InfoHeader *header = (InfoHeader*)(buffer + HEDAER_OFFSET);
+	fread(buffer, size, 1, f);
+	fclose(f);
+	printf("Header size:    %u\n", header->size);
+	printf("Width:          %u\n", header->width);
+	printf("Height:         %u\n", header->height);
+	printf("Planes:         %u\n", header->planes);
+	printf("Bits per pixel: %u\n", header->bits_per_pixel);
+	printf("Compression:    %u\n", header->compression);
+	printf("Image size:     %u\n", header->image_size);
+	printf("X pixels/meter: %u\n", header->x_pixels_per_m);
+	printf("Y pixels/meter: %u\n", header->y_pixels_per_m);
+	printf("Colors used:    %u\n", header->colors_used);
+	printf("Important cols: %u\n", header->important_colors);
+	if (header->compression != 0) {
+		fprintf(stderr, "Bmp file is compressed.\n");
+		return -2;
+	}
+	if (header->bits_per_pixel != 24) {
+		fprintf(stderr, "Bits per pixel must be 24.\n");
+		return -2;
+	}
+	uint8_t (*colors)[3] = (void*)(buffer + HEDAER_OFFSET + header->size);
+	size_t sz = header->width * header->height;
+	uint8_t avg;
+	for (size_t i = 0; i < sz; i++) {
+		avg = (colors[i][0] + colors[i][1] + colors[i][2]) / 3;
+		colors[i][0] = 255;
+		colors[i][1] = avg;
+		colors[i][2] = avg;
+	}
+	fwrite(buffer, size, 1, of);
+	fclose(of);
+	free(buffer);
+	return 0;
+}
+</code></pre>
+	<h2 id="h2-images">Додаток А. Отримані картинки.</h2>
 	<div w3-include-html="images.html"></div>
 </body>
 </html>
